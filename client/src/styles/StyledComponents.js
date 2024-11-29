@@ -13,9 +13,9 @@ export const Container = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.3);
 
   @media (max-width: 768px) {
-    margin: 10px;
-    height: 98vh;
-    border-radius: 20px;
+    margin: 0;
+    height: 100vh;
+    border-radius: 0;
   }
 `;
 
@@ -35,14 +35,21 @@ export const Header = styled.div`
   }
 
   @media (max-width: 768px) {
-    padding: 20px;
+    padding: 15px 20px;
+    
+    h1 {
+      font-size: 18px;
+    }
   }
 `;
-
 export const MainContent = styled.div`
   flex: 1;
   display: flex;
   overflow: hidden;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 export const Sidebar = styled.div`
@@ -54,7 +61,11 @@ export const Sidebar = styled.div`
   
   @media (max-width: 768px) {
     width: 100%;
-    display: ${props => props.show ? 'flex' : 'none'};
+    height: ${props => props.show ? '300px' : '0'};
+    overflow: hidden;
+    transition: height 0.3s ease;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
   }
 `;
 
@@ -63,6 +74,12 @@ export const ChatArea = styled.div`
   display: flex;
   flex-direction: column;
   background: white;
+  min-height: 0; // Important for mobile scrolling
+
+  @media (max-width: 768px) {
+    height: ${props => props.sidebarVisible ? 'calc(100vh - 300px)' : '100vh'};
+    transition: height 0.3s ease;
+  }
 `;
 
 export const Section = styled.div`
@@ -129,20 +146,10 @@ export const RoomList = styled.div`
   overflow-y: auto;
   padding: 20px;
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
+  @media (max-width: 768px) {
+    padding: 10px;
   }
 `;
-
 export const RoomCard = styled.div`
   padding: 15px;
   background: ${props => props.isActive ? '#4f46e5' : 'white'};
@@ -178,6 +185,11 @@ export const MessagesContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-height: 0; // Important for mobile scrolling
+
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -209,14 +221,13 @@ export const Message = styled.div`
     border: ${props => props.isUser ? 'none' : '1px solid #e2e8f0'};
   }
 
-  .message-meta {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 5px;
-    padding: 0 10px;
-    font-size: 12px;
-    color: #64748b;
+  @media (max-width: 768px) {
+    max-width: 90%;
+    
+    .message-content {
+      padding: 10px 14px;
+      font-size: 14px;
+    }
   }
 `;
 
@@ -236,6 +247,10 @@ export const ChatInputContainer = styled.form`
   background: white;
   border-top: 1px solid #e2e8f0;
   position: relative;
+
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 `;
 
 export const InputWrapper = styled.div`
@@ -246,8 +261,11 @@ export const InputWrapper = styled.div`
   padding: 5px;
   border-radius: 20px;
   border: 1px solid #e2e8f0;
-`;
 
+  @media (max-width: 768px) {
+    padding: 3px;
+  }
+`;
 export const EmojiButton = styled.button`
   background: none;
   border: none;
@@ -338,5 +356,19 @@ export const Modal = styled.div`
   @media (max-width: 480px) {
     width: 95%;
     padding: 20px;
+  }
+`;
+
+export const ToggleButton = styled.button`
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  display: none;
+  font-size: 20px;
+
+  @media (max-width: 768px) {
+    display: block;
   }
 `;

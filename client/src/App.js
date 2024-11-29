@@ -4,18 +4,25 @@ import {
   Container, 
   Header, 
   MainContent,
-  UserBadge 
+  UserBadge,
+  ChatArea,
+  ToggleButton
 } from './styles/StyledComponents';
 import Login from './components/Login';
 import RoomList from './components/RoomList';
 import ChatRoom from './components/ChatRoom';
 import PasswordModal from './components/PasswordModal';
 
-const socket = io(window.location.origin, {
-  reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 1000,
-});
+// Connect to the server
+const socket = io(process.env.NODE_ENV === 'production' 
+  ? window.location.origin 
+  : 'http://localhost:4000',
+  {
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+  }
+);
 
 function App() {
   const [username, setUsername] = useState('');
@@ -27,12 +34,21 @@ function App() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState('');
   const [showSidebar, setShowSidebar] = useState(true);
+  const [isConnected, setIsConnected] = useState(socket.connected);
 
   useEffect(() => {
+    // Connection events
     socket.on('connect', () => {
       console.log('Connected to server');
+      setIsConnected(true);
     });
 
+    socket.on('disconnect', () => {
+      console.log('Disconnected from server');
+      setIsConnected(false);
+    });
+
+    // Chat events
     socket.on('roomList', (roomList) => {
       setRooms(roomList);
     });
@@ -52,6 +68,10 @@ function App() {
     socket.on('joinSuccess', (roomName) => {
       setCurrentRoom(roomName);
       setView('chat');
+      // On mobile, hide sidebar after joining room
+      if (window.innerWidth <= 768) {
+        setShowSidebar(false);
+      }
     });
 
     socket.on('passwordRequired', () => {
@@ -62,8 +82,10 @@ function App() {
       alert(message);
     });
 
+    // Cleanup on unmount
     return () => {
       socket.off('connect');
+      socket.off('disconnect');
       socket.off('roomList');
       socket.off('message');
       socket.off('systemMessage');
@@ -72,6 +94,18 @@ function App() {
       socket.off('passwordRequired');
       socket.off('error');
     };
+  }, []);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setShowSidebar(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const handleLogin = () => {
@@ -107,34 +141,35 @@ function App() {
     setShowSidebar(!showSidebar);
   };
 
+  const getHeaderTitle = () => {
+    switch (view) {
+      case 'login':
+        return 'Welcome to Chat';
+      case 'rooms':
+        return 'Select a Room';
+      case 'chat':
+        return `Room: ${currentRoom}`;
+      default:
+        return 'Chat App';
+    }
+  };
+
   return (
     <Container>
       <Header>
-        <h1>
-          {view === 'login' ? 'Welcome to Chat' : 
-           view === 'rooms' ? 'Select a Room' : 
-           `Room: ${currentRoom}`}
-        </h1>
+        <h1>{getHeaderTitle()}</h1>
         {username && (
-          <UserBadge>
-            <i className="fas fa-circle"></i>
-            {username}
-          </UserBadge>
-        )}
-        {view === 'chat' && (
-          <button 
-            onClick={toggleSidebar}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              cursor: 'pointer',
-              display: 'block',
-              padding: '5px'
-            }}
-          >
-            <i className={`fas fa-${showSidebar ? 'times' : 'bars'}`}></i>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <UserBadge>
+              <i className={`fas fa-circle ${isConnected ? 'connected' : ''}`}></i>
+              {username}
+            </UserBadge>
+            {view === 'chat' && (
+              <ToggleButton onClick={toggleSidebar}>
+                <i className={`fas fa-${showSidebar ? 'times' : 'bars'}`}></i>
+              </ToggleButton>
+            )}
+          </div>
         )}
       </Header>
 
@@ -149,23 +184,24 @@ function App() {
 
         {view !== 'login' && (
           <>
-            {showSidebar && (
-              <RoomList 
-                rooms={rooms}
-                currentRoom={currentRoom}
-                onCreateRoom={handleCreateRoom}
-                onJoinRoom={handleJoinRoom}
-              />
-            )}
+            <RoomList 
+              show={showSidebar}
+              rooms={rooms}
+              currentRoom={currentRoom}
+              onCreateRoom={handleCreateRoom}
+              onJoinRoom={handleJoinRoom}
+            />
             
             {view === 'chat' && (
-              <ChatRoom 
-                messages={messages}
-                currentUser={username}
-                message={message}
-                setMessage={setMessage}
-                onSendMessage={handleSendMessage}
-              />
+              <ChatArea sidebarVisible={showSidebar}>
+                <ChatRoom 
+                  messages={messages}
+                  currentUser={username}
+                  message={message}
+                  setMessage={setMessage}
+                  onSendMessage={handleSendMessage}
+                />
+              </ChatArea>
             )}
           </>
         )}
