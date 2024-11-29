@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { MobileOverlay, BackButton } from './styles/StyledComponents';
 import io from 'socket.io-client';
 import { 
   Container, 
@@ -7,7 +6,10 @@ import {
   MainContent,
   UserBadge,
   ChatArea,
-  ToggleButton
+  ToggleButton,
+  MobileOverlay,
+  BackButton,
+  Sidebar 
 } from './styles/StyledComponents';
 import Login from './components/Login';
 import RoomList from './components/RoomList';
