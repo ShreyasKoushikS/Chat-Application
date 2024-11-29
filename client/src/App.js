@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { MobileOverlay, BackButton } from './styles/StyledComponents';
 import io from 'socket.io-client';
 import { 
   Container, 
@@ -35,6 +36,8 @@ function App() {
   const [selectedRoom, setSelectedRoom] = useState('');
   const [showSidebar, setShowSidebar] = useState(true);
   const [isConnected, setIsConnected] = useState(socket.connected);
+  const [isMobile] = useState(window.innerWidth <= 768);
+
 
   useEffect(() => {
     // Connection events
@@ -157,6 +160,11 @@ function App() {
   return (
     <Container>
       <Header>
+        {view === 'chat' && isMobile && (
+          <BackButton onClick={() => setShowSidebar(true)}>
+            <i className="fas fa-arrow-left"></i>
+          </BackButton>
+        )}
         <h1>{getHeaderTitle()}</h1>
         {username && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -164,15 +172,15 @@ function App() {
               <i className={`fas fa-circle ${isConnected ? 'connected' : ''}`}></i>
               {username}
             </UserBadge>
-            {view === 'chat' && (
+            {view === 'chat' && isMobile && (
               <ToggleButton onClick={toggleSidebar}>
-                <i className={`fas fa-${showSidebar ? 'times' : 'bars'}`}></i>
+                <i className="fas fa-bars"></i>
               </ToggleButton>
             )}
           </div>
         )}
       </Header>
-
+  
       <MainContent>
         {view === 'login' && (
           <Login 
@@ -181,19 +189,21 @@ function App() {
             onLogin={handleLogin}
           />
         )}
-
+  
         {view !== 'login' && (
           <>
-            <RoomList 
-              show={showSidebar}
-              rooms={rooms}
-              currentRoom={currentRoom}
-              onCreateRoom={handleCreateRoom}
-              onJoinRoom={handleJoinRoom}
-            />
+            <MobileOverlay show={showSidebar} onClick={() => setShowSidebar(false)} />
+            <Sidebar show={showSidebar}>
+              <RoomList 
+                rooms={rooms}
+                currentRoom={currentRoom}
+                onCreateRoom={handleCreateRoom}
+                onJoinRoom={handleJoinRoom}
+              />
+            </Sidebar>
             
             {view === 'chat' && (
-              <ChatArea sidebarVisible={showSidebar}>
+              <ChatArea>
                 <ChatRoom 
                   messages={messages}
                   currentUser={username}
@@ -206,7 +216,7 @@ function App() {
           </>
         )}
       </MainContent>
-
+  
       {showPasswordModal && (
         <PasswordModal 
           onSubmit={handlePasswordSubmit}

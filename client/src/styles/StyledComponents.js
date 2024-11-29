@@ -2,50 +2,50 @@ import styled from '@emotion/styled';
 
 export const Container = styled.div`
   max-width: 1400px;
-  height: 95vh;
-  margin: 20px auto;
+  height: 100vh;
+  margin: 0 auto;
   background: rgba(255, 255, 255, 0.98);
-  border-radius: 30px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.3);
 
   @media (max-width: 768px) {
-    margin: 0;
+    width: 100%;
     height: 100vh;
+    margin: 0;
     border-radius: 0;
   }
 `;
 
 export const Header = styled.div`
-  padding: 25px 40px;
+  padding: 20px;
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  height: 70px;
 
   h1 {
     margin: 0;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
   }
 
   @media (max-width: 768px) {
-    padding: 15px 20px;
-    
+    height: 60px;
+    padding: 10px 15px;
+
     h1 {
       font-size: 18px;
     }
   }
 `;
+
 export const MainContent = styled.div`
   flex: 1;
   display: flex;
   overflow: hidden;
+  position: relative;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -60,12 +60,12 @@ export const Sidebar = styled.div`
   flex-direction: column;
   
   @media (max-width: 768px) {
+    position: absolute;
     width: 100%;
-    height: ${props => props.show ? '300px' : '0'};
-    overflow: hidden;
-    transition: height 0.3s ease;
+    height: 100%;
+    z-index: 10;
+    display: ${props => props.show ? 'flex' : 'none'};
     border-right: none;
-    border-bottom: 1px solid #e2e8f0;
   }
 `;
 
@@ -74,11 +74,12 @@ export const ChatArea = styled.div`
   display: flex;
   flex-direction: column;
   background: white;
-  min-height: 0; // Important for mobile scrolling
+  position: relative;
+  height: calc(100vh - 70px); // Adjust based on your header height
 
   @media (max-width: 768px) {
-    height: ${props => props.sidebarVisible ? 'calc(100vh - 300px)' : '100vh'};
-    transition: height 0.3s ease;
+    width: 100%;
+    height: calc(100vh - 60px);
   }
 `;
 
@@ -147,9 +148,11 @@ export const RoomList = styled.div`
   padding: 20px;
 
   @media (max-width: 768px) {
-    padding: 10px;
+    padding: 15px;
+    height: calc(100vh - 60px);
   }
 `;
+
 export const RoomCard = styled.div`
   padding: 15px;
   background: ${props => props.isActive ? '#4f46e5' : 'white'};
@@ -185,23 +188,10 @@ export const MessagesContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-height: 0; // Important for mobile scrolling
 
   @media (max-width: 768px) {
     padding: 10px;
-  }
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
+    height: calc(100vh - 180px);
   }
 `;
 
@@ -243,13 +233,17 @@ export const SystemMessage = styled.div`
 `;
 
 export const ChatInputContainer = styled.form`
-  padding: 20px;
+  padding: 15px;
   background: white;
   border-top: 1px solid #e2e8f0;
   position: relative;
 
   @media (max-width: 768px) {
     padding: 10px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
 `;
 
@@ -258,14 +252,15 @@ export const InputWrapper = styled.div`
   gap: 10px;
   align-items: center;
   background: #f8fafc;
-  padding: 5px;
+  padding: 8px;
   border-radius: 20px;
   border: 1px solid #e2e8f0;
 
   @media (max-width: 768px) {
-    padding: 3px;
+    padding: 5px;
   }
 `;
+
 export const EmojiButton = styled.button`
   background: none;
   border: none;
@@ -360,15 +355,45 @@ export const Modal = styled.div`
 `;
 
 export const ToggleButton = styled.button`
+  display: none;
   background: none;
   border: none;
   color: white;
+  font-size: 24px;
   cursor: pointer;
-  padding: 8px;
-  display: none;
-  font-size: 20px;
+  padding: 5px 10px;
 
   @media (max-width: 768px) {
     display: block;
+  }
+`;
+
+export const MobileOverlay = styled.div`
+  display: none;
+  
+  @media (max-width: 768px) {
+    display: ${props => props.show ? 'block' : 'none'};
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 5;
+  }
+`;
+
+export const BackButton = styled.button`
+  display: none;
+  
+  @media (max-width: 768px) {
+    display: block;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-right: 10px;
   }
 `;
